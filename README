@@ -1,0 +1,15 @@
+Nolan Dyer
+Professor Hauschild
+CMPSCI 4760
+2/28/23
+
+Project 2: Adding functionality to our system
+
+
+This program serves to execute a user-specified number of processes. The executed program, oss.cpp, will call the worker.cpp program a various number of times which retrieves the process and parent process IDs along with the time limit for the worker processes. 
+
+The oss.cpp program accepts 4 arguments: -h, -n, -s, and -t. Each of these arguments, besides -h, must be followed up with an integer and -t requires two integers. -h brings up the help menu, -n specifies how many children processes you wish to create, -s specifies how many chlidren processes can run simultaneously and -t is how long each worker process should run for in seconds and nanoseconds. The arguments passed for -t will be used to obtain a random number between 1 and the number provided for both seconds and nanoseconds.
+
+To begin, first use the "make" command to compile the necessary output files. Then, use the command "./oss.out" along with your desired arguments. For example, if I wished to create a total of 10 children processes, limit the amount of simultaneous processes to 2, and allow each worker process to run for a maximum of 3 seconds and 100000 nanoseconds, I would use the command "./oss.out -n 10 -s 2 -t 3 100000".
+
+Easily the largest issue I faced in this program was converting between the necessary types in order to allow for memory sharing. I do not have a whole lot of practice with pointers so ensuring the correct values for the clock were stored in the memory was a challenge. I struggled with type conversion in general for this project and ran into many issues with the arguments for the worker program as well.
