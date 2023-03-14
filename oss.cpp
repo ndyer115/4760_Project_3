@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string>
+#include <fstream>
 using namespace std;
 
 int nanoSeconds = 0;//global variables for clock
@@ -45,7 +46,7 @@ int main(int argc, char** argv) {
 
 bool help = false;
 int proc = 1, simul = 1, runSec = 1, runNano = 0;
-
+char logFile[20];
 
 //obtains command line arguments
 for (int i = 0; i < argc; i++) {
@@ -57,11 +58,19 @@ for (int i = 0; i < argc; i++) {
   if (strcmp(argv[i], "-s") == 0 && i != argc-1 && argv[i+1])
     simul = atoi(argv[i+1]);
   
+  if (strcmp(argv[i], "-f") == 0 && i != argc-1 && argv[i+1])
+    strncpy(logFile, argv[i+1], sizeof(logFile));
+  
   if (strcmp(argv[i], "-t") == 0 && i != argc-1 && argv[i+1]) {
     runSec = atoi(argv[i+1]);
     runNano = atoi(argv[i+2]);
   }
 } 
+
+cout<<"File: "<<logFile<<endl;
+fstream outputFile;
+outputFile.open(logFile, ios::out);
+
 
 if (help) {//displays help message and terminates program
   cout<<"Help Menu"<<endl;
@@ -142,8 +151,13 @@ while (true) {
     cout<<"OSS PID: "<<getpid()<<" SysClockS: "<<seconds<<" SysClockN: "<<nanoSeconds<<endl;
     cout<<"Process Table: "<<endl;
     cout<<"Entry Occupied PID   StartS StartN"<<endl;
-    for (int i = 0; i < totProcCount; i++) 
+    outputFile<<endl<<"OSS PID: "<<getpid()<<" SysClockS: "<<seconds<<" SysClockN: "<<nanoSeconds<<endl;
+    outputFile<<"Process Table: "<<endl;
+    outputFile<<"Entry Occupied PID   StartS StartN"<<endl;
+    for (int i = 0; i < totProcCount; i++) {
        cout<<left<<setw(6)<<i<<setw(9)<<procInfo[i].occ<<setw(6)<<procInfo[i].pid<<setw(7)<<procInfo[i].startSec<<procInfo[i].startNano<<endl;
+       outputFile<<left<<setw(6)<<i<<setw(9)<<procInfo[i].occ<<setw(6)<<procInfo[i].pid<<setw(7)<<procInfo[i].startSec<<procInfo[i].startNano<<endl;
+    }
     cout<<endl;
   }
   
@@ -157,6 +171,7 @@ while (true) {
     shmctl(shmidNano,IPC_RMID,NULL);
     shmctl(shmidSec,IPC_RMID,NULL);
     msgctl(msgid, IPC_RMID, NULL);
+    outputFile.close();
     exit(1);
   }
 }
@@ -169,6 +184,7 @@ shmdt(blockSec);
 shmctl(shmidNano,IPC_RMID,NULL);
 shmctl(shmidSec,IPC_RMID,NULL);
 msgctl(msgid, IPC_RMID, NULL);
+outputFile.close();
 return 0;
 }
 
