@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 
 bool help = false;
 int proc = 1, simul = 1, runSec = 1, runNano = 0;
-char logFile[20];
+char logFile[20] = "Logfile";
 
 //obtains command line arguments
 for (int i = 0; i < argc; i++) {
