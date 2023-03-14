@@ -1,5 +1,5 @@
 //Author: Nolan Dyer
-//Date: 2/23/23
+//Date: 3/14/23
 #include <iostream>
 #include <iomanip>
 #include <string.h>
@@ -12,10 +12,10 @@
 #include <string>
 using namespace std;
 
-int nanoSeconds = 0;
+int nanoSeconds = 0;//global variables for clock
 int seconds = 0;
 
-struct pt {
+struct pt {//process table struct
 int occ;
 pid_t pid;
 int startSec;
@@ -24,8 +24,8 @@ int startNano;
 
 struct pt procInfo[20];
 
-struct mesg_buffer {
-    long mesg_type;
+struct msg_buffer {//message buffer to be passed to worker processes
+    long msg_type;
     int msgSec;
     int msgNano;
 } message;
@@ -97,7 +97,7 @@ int *blockNano = (int*) shmat(shmidNano, NULL, 0);
 int *blockSec = (int*) shmat(shmidSec, NULL, 0);
 
 int msgid = msgget(3000, 0666 | IPC_CREAT);//creates ID for msgsnd
-message.mesg_type = 1;
+message.msg_type = 1;
 
 while (true) {
   if (curProcCount < simul && totProcCount != proc) {//if the current number of processes running is less than the simul limit and the total number has not reached the desired amount of processes, fork()
