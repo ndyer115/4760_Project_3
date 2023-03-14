@@ -67,9 +67,8 @@ for (int i = 0; i < argc; i++) {
   }
 } 
 
-cout<<"File: "<<logFile<<endl;
 fstream outputFile;
-outputFile.open(logFile, ios::out);
+outputFile.open(logFile, ios::out);//opens logfile so that it can be written to
 
 
 if (help) {//displays help message and terminates program
@@ -117,14 +116,14 @@ while (true) {
   }
   
   if (procTable.pid == 0) {
-    srand(getpid());
     execlp(args[0], args[0], args[1]);//executes worker on child process, exits with error if execlp line is missed
     cout<<"Exec failed, terminating program"<<endl;
     exit(1);
   } 
   
-  if (newProc) {
+  if (newProc) {//generates random time limit values, sends them to worker, and tracks process table info 
     newProc = false;
+    srand(getpid());
     message.msgSec = 1+(rand()%runSec);
     message.msgNano = 1+(rand()%runNano);
     msgsnd(msgid, &message, sizeof(message), 0);
@@ -147,11 +146,11 @@ while (true) {
   *blockNano = (int)nanoSeconds;
   *blockSec = (int)seconds;
   
-  if (nanoSeconds == 500000200 || nanoSeconds == 0) {//outputs process table every half second
+  if (nanoSeconds == 500000200 || nanoSeconds == 0) {//outputs process table every half second and puts process table data into logfile
     cout<<"OSS PID: "<<getpid()<<" SysClockS: "<<seconds<<" SysClockN: "<<nanoSeconds<<endl;
     cout<<"Process Table: "<<endl;
     cout<<"Entry Occupied PID   StartS StartN"<<endl;
-    outputFile<<endl<<"OSS PID: "<<getpid()<<" SysClockS: "<<seconds<<" SysClockN: "<<nanoSeconds<<endl;
+    outputFile<<"OSS PID: "<<getpid()<<" SysClockS: "<<seconds<<" SysClockN: "<<nanoSeconds<<endl;
     outputFile<<"Process Table: "<<endl;
     outputFile<<"Entry Occupied PID   StartS StartN"<<endl;
     for (int i = 0; i < totProcCount; i++) {
@@ -164,7 +163,7 @@ while (true) {
   if (totProcCount == proc && curProcCount == 0)//exits loop if total number of processes have finished running
     break;
     
-  if (seconds > 60) {
+  if (seconds > 60) {//exits if max time limit is reached
     cout<<"Time limit reach, terminating all processes"<<endl;
     shmdt(blockNano);
     shmdt(blockSec);
@@ -179,7 +178,7 @@ while (true) {
 wait(0);
 cout<<endl<<"All worker processes have completed."<<endl;
 
-shmdt(blockNano);
+shmdt(blockNano);//closes shared memory, message queue, and logfile before terminating
 shmdt(blockSec);
 shmctl(shmidNano,IPC_RMID,NULL);
 shmctl(shmidSec,IPC_RMID,NULL);

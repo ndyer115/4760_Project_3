@@ -13,7 +13,7 @@ struct msg_buffer {
 } message;
 
 int main (int argc, char** argv) {
-int shmidNano = shmget(2000, 512, 0644);
+int shmidNano = shmget(2000, 512, 0644);//creates IDs for shared memory
 int shmidSec = shmget(2001, 512, 0644);
 int *blockNano = (int*) shmat(shmidNano, NULL, 0);
 int *blockSec = (int*) shmat(shmidSec, NULL, 0);
@@ -23,7 +23,7 @@ msgrcv(msgid, &message, sizeof(message), 1, 0);//waits until message is recieved
 
 int *startSec = blockSec;
 int *startNano = blockNano;
-int targetSec = *startSec + message.msgSec;
+int targetSec = *startSec + message.msgSec;//calculates when worker should terminate
 int targetNano = *startNano + message.msgNano;
 
 cout<<"WORKER PID:"<<getpid()<<" PPID:"<<getppid()<<" Received seconds from oss: "<<message.msgSec<<" Received Nano from oss: "<<message.msgNano<<" TermTimeS: "<<targetSec<<" TermTimeNano: "<<targetNano<<endl<<"--Received message"<<endl;
@@ -45,7 +45,7 @@ while (true) {
 }
 
 
-shmdt(blockNano);
+shmdt(blockNano);//detaches from shared memory space
 shmdt(blockSec);
 
 return 0;
