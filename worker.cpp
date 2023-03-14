@@ -25,8 +25,8 @@ cout<<"seconds: "<<message.msgSec<<" nano: "<<message.msgNano<<endl;
 
 int *startSec = blockSec;
 int *startNano = blockNano;
-int targetSec = *startSec + stoi(argv[1]);
-int targetNano = *startNano + stoi(argv[2]);
+int targetSec = *startSec + message.msgSec;
+int targetNano = *startNano + message.msgSec;
 
 cout<<"WORKER PID:"<<getpid()<<" PPID:"<<getppid()<<" SysClockS: "<<*blockSec<<" SysClockNano: "<<*blockNano<<" TermTimeS: "<<targetSec<<" TermTimeNano: "<<targetNano<<endl<<"--Just Starting"<<endl;
 

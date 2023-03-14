@@ -107,12 +107,9 @@ while (true) {
     procTable.pid = fork();
   }
   
-  int randSec = 1+(rand()%runSec);
-  int randNano = 1+(rand()%runNano);
-  
   if (procTable.pid == 0) {
     srand(getpid());
-    execlp(args[0], args[0], std::to_string(randSec).c_str(), std::to_string(randNano).c_str(), args[1]);//executes worker on child process, exits with error if execlp line is missed
+    execlp(args[0], args[0], args[1]);//executes worker on child process, exits with error if execlp line is missed
     cout<<"Exec failed, terminating program"<<endl;
     exit(1);
   } 
