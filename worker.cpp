@@ -1,15 +1,27 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/ipc.h>
+#include <sys/msg.h>
 #include <sys/shm.h>
 #include <cstdint>
 using namespace std;
+
+struct mesg_buffer {
+    long mesg_type;
+    int msgSec;
+    int msgNano;
+} message;
 
 int main (int argc, char** argv) {
 int shmidNano = shmget(2000, 512, 0644);
 int shmidSec = shmget(2001, 512, 0644);
 int *blockNano = (int*) shmat(shmidNano, NULL, 0);
 int *blockSec = (int*) shmat(shmidSec, NULL, 0);
+
+int msgid = msgget(3000, 0666 | IPC_CREAT);//creates ID for msgrcv
+msgrcv(msgid, &message, sizeof(message), 1, 0);
+
+cout<<"seconds: "<<message.msgSec<<" nano: "<<message.msgNano<<endl;
 
 int *startSec = blockSec;
 int *startNano = blockNano;

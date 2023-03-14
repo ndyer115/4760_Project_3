@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/ipc.h>
+#include <sys/msg.h>
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -22,6 +23,12 @@ int startNano;
 } procTable;
 
 struct pt procInfo[20];
+
+struct mesg_buffer {
+    long mesg_type;
+    int msgSec;
+    int msgNano;
+} message;
 
 void sharedClock(bool inc) {//each loop of oss increments nanoseconds by 950 and updates seconds and nanoseconds in struct
 if (inc) 
@@ -89,6 +96,9 @@ int shmidSec = shmget(2001, 512, 0644 | IPC_CREAT);
 int *blockNano = (int*) shmat(shmidNano, NULL, 0);
 int *blockSec = (int*) shmat(shmidSec, NULL, 0);
 
+int msgid = msgget(3000, 0666 | IPC_CREAT);//creates ID for msgsnd
+message.mesg_type = 1;
+
 while (true) {
   if (curProcCount < simul && totProcCount != proc) {//if the current number of processes running is less than the simul limit and the total number has not reached the desired amount of processes, fork()
     curProcCount++;
@@ -97,10 +107,11 @@ while (true) {
     procTable.pid = fork();
   }
   
+  int randSec = 1+(rand()%runSec);
+  int randNano = 1+(rand()%runNano);
+  
   if (procTable.pid == 0) {
     srand(getpid());
-    int randSec = 1+(rand()%runSec);
-    int randNano = 1+(rand()%runNano);
     execlp(args[0], args[0], std::to_string(randSec).c_str(), std::to_string(randNano).c_str(), args[1]);//executes worker on child process, exits with error if execlp line is missed
     cout<<"Exec failed, terminating program"<<endl;
     exit(1);
@@ -108,6 +119,9 @@ while (true) {
   
   if (newProc) {
     newProc = false;
+    message.msgSec = 1+(rand()%runSec);
+    message.msgNano = 1+(rand()%runNano);
+    msgsnd(msgid, &message, sizeof(message), 0);
     procInfo[totProcCount-1].occ = 1;
     procInfo[totProcCount-1].pid = procTable.pid;
     procInfo[totProcCount-1].startSec = seconds;
@@ -122,8 +136,6 @@ while (true) {
         procInfo[i].occ = 0;
     curProcCount--;
   }
-  
-  
   
   sharedClock(1);//increments clock function
   *blockNano = (int)nanoSeconds;
@@ -147,6 +159,7 @@ while (true) {
     shmdt(blockSec);
     shmctl(shmidNano,IPC_RMID,NULL);
     shmctl(shmidSec,IPC_RMID,NULL);
+    msgctl(msgid, IPC_RMID, NULL);
     exit(1);
   }
 }
@@ -158,7 +171,7 @@ shmdt(blockNano);
 shmdt(blockSec);
 shmctl(shmidNano,IPC_RMID,NULL);
 shmctl(shmidSec,IPC_RMID,NULL);
-
+msgctl(msgid, IPC_RMID, NULL);
 return 0;
 }
 
