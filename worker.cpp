@@ -19,14 +19,14 @@ int *blockNano = (int*) shmat(shmidNano, NULL, 0);
 int *blockSec = (int*) shmat(shmidSec, NULL, 0);
 
 int msgid = msgget(3000, 0666 | IPC_CREAT);//creates ID for msgrcv
-msgrcv(msgid, &message, sizeof(message), 1, 0);
+msgrcv(msgid, &message, sizeof(message), 1, 0);//waits until message is recieved from oss
 
 cout<<"seconds: "<<message.msgSec<<" nano: "<<message.msgNano<<endl;
 
 int *startSec = blockSec;
 int *startNano = blockNano;
 int targetSec = *startSec + message.msgSec;
-int targetNano = *startNano + message.msgSec;
+int targetNano = *startNano + message.msgNano;
 
 cout<<"WORKER PID:"<<getpid()<<" PPID:"<<getppid()<<" SysClockS: "<<*blockSec<<" SysClockNano: "<<*blockNano<<" TermTimeS: "<<targetSec<<" TermTimeNano: "<<targetNano<<endl<<"--Just Starting"<<endl;
 
