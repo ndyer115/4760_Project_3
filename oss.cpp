@@ -26,7 +26,7 @@ int startNano;
 struct pt procInfo[20];
 
 struct msg_buffer {//message buffer to be passed to worker processes
-    long msg_type;
+    long msg_type = 1;
     int msgSec;
     int msgNano;
 } message;
@@ -105,7 +105,6 @@ int *blockNano = (int*) shmat(shmidNano, NULL, 0);
 int *blockSec = (int*) shmat(shmidSec, NULL, 0);
 
 int msgid = msgget(3000, 0666 | IPC_CREAT);//creates ID for msgsnd
-message.msg_type = 1;
 
 while (true) {
   if (curProcCount < simul && totProcCount != proc) {//if the current number of processes running is less than the simul limit and the total number has not reached the desired amount of processes, fork()
@@ -116,6 +115,7 @@ while (true) {
   }
   
   if (procTable.pid == 0) {
+    srand(getpid());
     execlp(args[0], args[0], args[1]);//executes worker on child process, exits with error if execlp line is missed
     cout<<"Exec failed, terminating program"<<endl;
     exit(1);
@@ -123,7 +123,6 @@ while (true) {
   
   if (newProc) {//generates random time limit values, sends them to worker, and tracks process table info 
     newProc = false;
-    srand(getpid());
     message.msgSec = 1+(rand()%runSec);
     message.msgNano = 1+(rand()%runNano);
     msgsnd(msgid, &message, sizeof(message), 0);

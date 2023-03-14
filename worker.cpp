@@ -26,7 +26,7 @@ int *startNano = blockNano;
 int targetSec = *startSec + message.msgSec;//calculates when worker should terminate
 int targetNano = *startNano + message.msgNano;
 
-cout<<"WORKER PID:"<<getpid()<<" PPID:"<<getppid()<<" Received seconds from oss: "<<message.msgSec<<" Received Nano from oss: "<<message.msgNano<<" TermTimeS: "<<targetSec<<" TermTimeNano: "<<targetNano<<endl<<"--Received message"<<endl;
+cout<<"WORKER PID:"<<getpid()<<" PPID:"<<getppid()<<" Received seconds from oss: "<<message.msgSec<<" Received nano from oss: "<<message.msgNano<<" TermTimeS: "<<targetSec<<" TermTimeNano: "<<targetNano<<endl<<"--Received message"<<endl;
 
 int time = *startSec;
 int passed = 0;
@@ -39,7 +39,6 @@ while (true) {
   
   if (*blockSec > targetSec && *blockNano > targetNano) {
     cout<<"WORKER PID:"<<getpid()<<" PPID:"<<getppid()<<" SysClockS: "<<*blockSec<<" SysClockNano: "<<*blockNano<<" TermTimeS: "<<targetSec<<" TermTimeNano: "<<targetNano<<endl<<"--Terminating"<<endl;
-    
     break;
   }
 }
